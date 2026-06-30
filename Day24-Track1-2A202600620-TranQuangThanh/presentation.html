@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Risk Analysis: Media / News / Social</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --primary: #3b82f6;
+            --secondary: #8b5cf6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Decorative background elements */
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: -1;
+            opacity: 0.6;
+            animation: float 20s infinite ease-in-out alternate;
+        }
+
+        .blob-1 {
+            top: -10%;
+            left: -10%;
+            width: 60vw;
+            height: 60vw;
+            background: rgba(59, 130, 246, 0.3);
+        }
+
+        .blob-2 {
+            bottom: -10%;
+            right: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: rgba(139, 92, 246, 0.3);
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                transform: translate(50px, 50px) scale(1.1);
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Nav */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 0;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        nav ul {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: var(--text-main);
+        }
+
+        /* Sections */
+        section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 8rem 0;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Typography */
+        h1 {
+            font-size: clamp(3rem, 5vw, 5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #60a5fa, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        h2::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 40px;
+            background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
+            border-radius: 4px;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Glass Cards */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1.5rem;
+            padding: 3rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Tables */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 1.05rem;
+        }
+
+        th,
+        td {
+            padding: 1.25rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+            vertical-align: top;
+        }
+
+        th {
+            font-weight: 600;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        td:first-child {
+            font-weight: 500;
+            color: #e2e8f0;
+            width: 25%;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Badges */
+        .badge {
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge.critical {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
+        }
+
+        .badge.high {
+            background: rgba(249, 115, 22, 0.15);
+            color: #fdba74;
+            border: 1px solid rgba(249, 115, 22, 0.4);
+        }
+
+        .badge.medium {
+            background: rgba(234, 179, 8, 0.15);
+            color: #fde047;
+            border: 1px solid rgba(234, 179, 8, 0.4);
+        }
+
+        .badge.low {
+            background: rgba(34, 197, 94, 0.15);
+            color: #86efac;
+            border: 1px solid rgba(34, 197, 94, 0.4);
+        }
+
+        /* Harm Map Grid */
+        .harm-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .harm-item {
+            background: rgba(0, 0, 0, 0.25);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 1px solid var(--glass-border);
+            border-left: 4px solid var(--primary);
+        }
+
+        .harm-item.reason {
+            grid-column: 1 / -1;
+            border-left-color: var(--secondary);
+            background: linear-gradient(to right, rgba(139, 92, 246, 0.1), rgba(0, 0, 0, 0.25));
+        }
+
+        .harm-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            display: block;
+            letter-spacing: 1px;
+        }
+
+        .harm-value {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #e2e8f0;
+        }
+
+        /* Links */
+        a {
+            color: #60a5fa;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        a:hover {
+            color: #93c5fd;
+            text-decoration: underline;
+        }
+
+        .hero {
+            text-align: center;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px -10px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px -10px rgba(99, 102, 241, 0.7);
+            text-decoration: none;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <nav>
+        <ul>
+            <li><a href="#intro">Trang Chủ</a></li>
+            <li><a href="#snapshot">Risk Snapshot</a></li>
+            <li><a href="#case1">Case 1: CNET</a></li>
+            <li><a href="#case2">Case 2: Sports Illustrated</a></li>
+            <li><a href="#case3">Case 3: Deepfake</a></li>
+            <li><a href="#synthesis">Tổng Hợp Nhóm</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <section id="intro" class="hero">
+            <h1>AI Risk Analysis:<br>Media, News & Social</h1>
+            <p>Day 24 Lab - Case Study Hunt & Harm Map. Khám phá và phân tích sâu các rủi ro của AI trong hệ sinh thái
+                truyền thông.</p>
+            <a href="#snapshot" class="btn">Bắt Đầu Khám Phá</a>
+        </section>
+
+        <!-- Risk Snapshot Section -->
+        <section id="snapshot">
+            <h2>1. Industry Risk Snapshot</h2>
+            <div class="glass-card">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tiêu chí đánh giá</th>
+                                <th>Mức độ</th>
+                                <th>Lý do</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Gây hại thể chất?</td>
+                                <td><span class="badge low">Low</span></td>
+                                <td>Chủ yếu là tinh thần và tài chính. Hại thể chất chỉ gián tiếp.</td>
+                            </tr>
+                            <tr>
+                                <td>Ảnh hưởng quyết định hệ trọng?</td>
+                                <td><span class="badge high">High</span></td>
+                                <td>Tác động mạnh đến bầu cử chính trị, đầu tư và niềm tin xã hội.</td>
+                            </tr>
+                            <tr>
+                                <td>Động tới dữ liệu nhạy cảm?</td>
+                                <td><span class="badge medium">Medium</span></td>
+                                <td>Hành vi đọc, hồ sơ cử tri, nhưng không khắt khe như Y tế.</td>
+                            </tr>
+                            <tr>
+                                <td>Hậu quả khó đảo ngược?</td>
+                                <td><span class="badge high">High</span></td>
+                                <td>Tin giả lan truyền cực nhanh, đính chính thường bị chìm nghỉm.</td>
+                            </tr>
+                            <tr>
+                                <td>Blast radius (Vùng ảnh hưởng)?</td>
+                                <td><span class="badge critical">Critical</span></td>
+                                <td>Mạng xã hội và báo chí phủ sóng hàng triệu người trong tích tắc.</td>
+                            </tr>
+                            <tr>
+                                <td>Cần human review?</td>
+                                <td><span class="badge high">High</span></td>
+                                <td>Bắt buộc. Cần Editor duyệt và gắn nhãn AI minh bạch.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="glass-card" style="margin-top: 1rem; padding: 2rem;">
+                <h3>Tổng thể ngành: <span class="badge high" style="font-size: 1.2rem;">HIGH RISK</span></h3>
+                <p>Đối với ngành Media/News, rủi ro cốt lõi là <strong>Misinformation (tin giả)</strong> dẫn đến sự suy
+                    giảm <strong>Public Trust</strong>. Hậu quả khó đảo ngược vì "tin đính chính" hiếm khi viral bằng
+                    "tin giả".</p>
+            </div>
+        </section>
+
+        <!-- Case 1 -->
+        <section id="case1">
+            <h2>2. Case Study: CNET AI Errors</h2>
+            <div class="glass-card">
+                <h3>Brief Case</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td><strong>Tổ chức / Sản phẩm</strong></td>
+                                <td>CNET / Hệ thống AI tạo nội dung nội bộ</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Use case AI</strong></td>
+                                <td>Tự động tạo các bài báo giải thích kiến thức tài chính cơ bản để tối ưu SEO.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sự kiện (Tháng 1/2023)</strong></td>
+                                <td>CNET dùng AI viết bài và xuất bản dưới bút danh "CNET Money Staff". Phát hiện các
+                                    bài báo này sai nghiêm trọng kiến thức toán học, tài chính sơ đẳng.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Stakeholder</strong></td>
+                                <td>Độc giả cá nhân (sai quyết định tài chính), Phóng viên.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Số liệu chính</strong></td>
+                                <td><strong style="color: #60a5fa;">77</strong> bài báo AI, <strong
+                                        style="color: #ef4444;">41</strong> bài (hơn 53%) phải đính chính do lỗi sai.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Nguồn kiểm chứng</strong></td>
+                                <td><a href="https://futurism.com/cnet-publishing-articles-by-ai"
+                                        target="_blank">Futurism: CNET Is Quietly Publishing Articles Generated By
+                                        AI</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 style="margin-top: 3rem;">Harm Map Worksheet</h3>
+                <div class="harm-grid">
+                    <div class="harm-item"><span class="harm-label">High-risk Moment</span><span class="harm-value">Xuất
+                            bản bài tài chính thiếu Editor kiểm duyệt số.</span></div>
+                    <div class="harm-item"><span class="harm-label">Failure Mode</span><span
+                            class="harm-value">Hallucination / Over-reliance</span></div>
+                    <div class="harm-item"><span class="harm-label">Layer Bắt Đầu Lỗi</span><span
+                            class="harm-value">Grounding / UX (Che giấu AI)</span></div>
+                    <div class="harm-item"><span class="harm-label">Harm Lens</span><span
+                            class="harm-value">Misinformation, Financial Injury</span></div>
+
+                    <div class="harm-item"><span class="harm-label">Severity</span><span
+                            class="badge medium">Medium</span></div>
+                    <div class="harm-item"><span class="harm-label">Scale</span><span class="badge high">High</span>
+                    </div>
+                    <div class="harm-item"><span class="harm-label">Probability</span><span
+                            class="badge high">High</span></div>
+                    <div class="harm-item"><span class="harm-label">Frequency</span><span class="badge high">High</span>
+                    </div>
+
+                    <div class="harm-item reason"><span class="harm-label">Vì sao?</span><span class="harm-value">LLM
+                            nổi tiếng kém toán học. Việc phó mặc sinh bài mà không có cơ chế cross-check đã khiến hệ
+                            thống liên tục sinh ra lỗi (tỷ lệ lỗi >50%).</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Case 2 -->
+        <section id="case2">
+            <h2>3. Case Study: Sports Illustrated Fake Authors</h2>
+            <div class="glass-card">
+                <h3>Brief Case</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td><strong>Tổ chức / Sản phẩm</strong></td>
+                                <td>Sports Illustrated (SI) & AdVon Commerce</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Use case AI</strong></td>
+                                <td>Dùng AI sinh ra ảnh đại diện và tiểu sử bịa đặt tạo danh tính nhà báo mạo danh viết
+                                    review sản phẩm (Affiliate).</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sự kiện (Tháng 11/2023)</strong></td>
+                                <td>SI đăng bài dưới tên các nhà báo "ma" (VD: Drew Ortiz). Hình ảnh lấy từ kho bán ảnh
+                                    AI. SI lén lút xóa bài khi bị phanh phui.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Stakeholder</strong></td>
+                                <td>Độc giả bị lừa dối, uy tín ngành báo chí.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Số liệu chính</strong></td>
+                                <td><strong style="color: #ef4444;">CEO bị sa thải</strong> ngay sau scandal. Hàng chục
+                                    bài affiliate bị gỡ.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Nguồn kiểm chứng</strong></td>
+                                <td><a href="https://futurism.com/sports-illustrated-ai-generated-writers"
+                                        target="_blank">Futurism: SI Published Articles by Fake Writers</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 style="margin-top: 3rem;">Harm Map Worksheet</h3>
+                <div class="harm-grid">
+                    <div class="harm-item"><span class="harm-label">High-risk Moment</span><span class="harm-value">Đưa
+                            ảnh và profile ảo lên danh sách Tác giả chính thức.</span></div>
+                    <div class="harm-item"><span class="harm-label">Failure Mode</span><span class="harm-value">Misuse /
+                            Deception</span></div>
+                    <div class="harm-item"><span class="harm-label">Layer Bắt Đầu Lỗi</span><span
+                            class="harm-value">Policy / Safety</span></div>
+                    <div class="harm-item"><span class="harm-label">Harm Lens</span><span
+                            class="harm-value">Misinformation, Dignity Loss</span></div>
+
+                    <div class="harm-item"><span class="harm-label">Severity</span><span class="badge high">High</span>
+                    </div>
+                    <div class="harm-item"><span class="harm-label">Scale</span><span class="badge high">High</span>
+                    </div>
+                    <div class="harm-item"><span class="harm-label">Probability</span><span
+                            class="badge high">High</span></div>
+                    <div class="harm-item"><span class="harm-label">Frequency</span><span
+                            class="badge medium">Medium</span></div>
+
+                    <div class="harm-item reason"><span class="harm-label">Vì sao?</span><span class="harm-value">Lỗi cố
+                            ý từ phía vận hành (Misuse) để chạy KPI Affiliate. Chính sách kiểm duyệt bên thứ 3 lỏng lẻo
+                            phá hủy hoàn toàn niềm tin vào 1 tạp chí 70 năm tuổi.</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Case 3 -->
+        <section id="case3">
+            <h2>4. Case Study: Biden Deepfake Robocall</h2>
+            <div class="glass-card">
+                <h3>Brief Case</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td><strong>Tổ chức / Sản phẩm</strong></td>
+                                <td>Political Consultant Steve Kramer / AI Voice Cloning</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Use case AI</strong></td>
+                                <td>Dùng AI nhái giọng (Voice Cloning) chính trị gia để thực hiện cuộc gọi tự động
+                                    (robocall) hàng loạt.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sự kiện (Tháng 1/2024)</strong></td>
+                                <td>Phát tán đoạn ghi âm deepfake giả giọng Tổng thống Joe Biden, gọi cho cử tri bang
+                                    New Hampshire xúi giục họ tẩy chay vòng bầu cử sơ bộ.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Stakeholder</strong></td>
+                                <td>Cử tri New Hampshire, Tính toàn vẹn của Bầu cử Mỹ.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Số liệu chính</strong></td>
+                                <td>FCC phạt Steve Kramer <strong style="color: #ef4444;">6 triệu USD</strong> và nhà
+                                    mạng Lingo Telecom <strong style="color: #f97316;">1 triệu USD</strong>.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Nguồn kiểm chứng</strong></td>
+                                <td><a href="https://www.fcc.gov/document/fcc-proposes-6-million-fine-ai-generated-deepfake-robocalls"
+                                        target="_blank">FCC: Proposes $6 Million Fine for Deepfake Robocalls</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 style="margin-top: 3rem;">Harm Map Worksheet</h3>
+                <div class="harm-grid">
+                    <div class="harm-item"><span class="harm-label">High-risk Moment</span><span class="harm-value">Phát
+                            tán cuộc gọi tự động mạo danh sát giờ bỏ phiếu.</span></div>
+                    <div class="harm-item"><span class="harm-label">Failure Mode</span><span class="harm-value">Misuse /
+                            Malicious Deepfake</span></div>
+                    <div class="harm-item"><span class="harm-label">Layer Bắt Đầu Lỗi</span><span
+                            class="harm-value">Model / Security System</span></div>
+                    <div class="harm-item"><span class="harm-label">Harm Lens</span><span class="harm-value">Opportunity
+                            loss, Misinformation</span></div>
+
+                    <div class="harm-item"><span class="harm-label">Severity</span><span
+                            class="badge critical">Critical</span></div>
+                    <div class="harm-item"><span class="harm-label">Scale</span><span class="badge medium">Medium</span>
+                    </div>
+                    <div class="harm-item"><span class="harm-label">Probability</span><span
+                            class="badge high">High</span></div>
+                    <div class="harm-item"><span class="harm-label">Frequency</span><span class="badge low">Low</span>
+                    </div>
+
+                    <div class="harm-item reason"><span class="harm-label">Vì sao?</span><span class="harm-value">Công
+                            nghệ Voice Cloning hiện nay quá rẻ và thiếu watermarking. Kẻ xấu dễ dàng kết hợp với dịch vụ
+                            Caller ID Spoofing để tấn công vào nền tảng dân chủ pháp lý.</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Group Synthesis -->
+        <section id="synthesis">
+            <h2>5. Tổng Hợp Nhóm (So sánh chéo)</h2>
+            <div class="glass-card">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ngành</th>
+                                <th>Harm dễ gặp nhất</th>
+                                <th>Failure Mode</th>
+                                <th>Risk Profile Tổng</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Y tế (Health)</strong></td>
+                                <td>Injury (Tổn hại thể chất)</td>
+                                <td>Harmful advice, Hallucination</td>
+                                <td><span class="badge critical">Critical</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Mobility (Auto)</strong></td>
+                                <td>Physical Injury, Crash</td>
+                                <td>Edge-case, Escalation failure</td>
+                                <td><span class="badge critical">Critical</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>HR / Tuyển dụng</strong></td>
+                                <td>Opportunity loss, Bias</td>
+                                <td>Fairness, Data bias</td>
+                                <td><span class="badge high">Medium-High</span></td>
+                            </tr>
+                            <tr>
+                                <td style="color: #60a5fa;"><strong>Media / Social</strong></td>
+                                <td style="color: #60a5fa;">Misinformation, Trust Decay</td>
+                                <td style="color: #60a5fa;">Misuse, Over-reliance</td>
+                                <td><span class="badge high">High</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 style="margin-top: 3rem;">AI Product Manager POV - Giải pháp "AI News Guard"</h3>
+                <p>Sau khi tổng hợp, nhóm đề xuất xây dựng hệ thống <strong>AI News Guard</strong> để bảo vệ tòa soạn
+                    khỏi rủi ro. Hệ thống bao gồm 2 module chính:</p>
+                <div class="harm-grid">
+                    <div class="harm-item">
+                        <span class="harm-label">Module 1: Fact-Checker</span>
+                        <span class="harm-value">Tự động cross-check các số liệu, toán học, tài chính với API của
+                            Reuters/Bloomberg (Chống lỗi của CNET).</span>
+                    </div>
+                    <div class="harm-item">
+                        <span class="harm-label">Module 2: Deepfake Detector</span>
+                        <span class="harm-value">Quét Metadata và tần số nhiễu của ảnh tác giả/âm thanh podcast để phát
+                            hiện signature của AI (Chống lỗi SI & Deepfake Voice).</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Smooth scrolling for navigation
+        document.querySelectorAll('nav a').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            });
+        });
+
+        // Intersection Observer for scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, {
+            threshold: 0.15,
+            rootMargin: "0px 0px -100px 0px"
+        });
+
+        document.querySelectorAll('section').forEach(sec => {
+            observer.observe(sec);
+        });
+    </script>
+</body>
+
+</html>
